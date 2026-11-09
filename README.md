@@ -4,10 +4,6 @@
 
 ### Pattern matching em Haskell: um robô, quatro comandos e zero `if`
 
-![Haskell](https://img.shields.io/badge/Haskell-5D4F85?style=for-the-badge&logo=haskell&logoColor=white)
-![C](https://img.shields.io/badge/C-comparação-00599C?style=for-the-badge&logo=c&logoColor=white)
-![CESAR School](https://img.shields.io/badge/CESAR%20School-2026.2-E4002B?style=for-the-badge)
-
 **Seminário Técnico · Tema 05** · Programação Imperativa e Funcional · Prof. Roni Maciel
 
 </div>
