@@ -1,5 +1,9 @@
 -- Aplicacao.hs: controle de um robo em um plano cartesiano
--- Posicao: tupla (x, y). Comandos: 'N' (norte), 'S' (sul), 'L' (leste), 'O' (oeste).
+-- Posicao: tupla (x, y). O robo entende dois jeitos de escrever comandos:
+--   letras de bussola: 'N' (norte), 'S' (sul), 'L' (leste), 'O' (oeste)
+--   teclas de jogo:    'W' (cima), 'S' (baixo), 'D' (direita), 'A' (esquerda)
+-- Os dois jeitos podem ser misturados. O 'S' vale para os dois (sul = baixo).
+-- As teclas de jogo tambem funcionam em minuscula.
 --
 -- As funcoes obrigatorias e a extensao sao puras (sem IO).
 -- Somente a parte final (demonstracao e modo teclado) usa entrada e saida.
@@ -9,9 +13,16 @@ import System.IO
 -- 1. Aplica um comando a posicao; comandos desconhecidos mantem a posicao.
 mover :: Char -> (Int, Int) -> (Int, Int)
 mover 'N' (x, y) = (x, y + 1)
+mover 'W' (x, y) = (x, y + 1)
+mover 'w' (x, y) = (x, y + 1)
 mover 'S' (x, y) = (x, y - 1)
+mover 's' (x, y) = (x, y - 1)
 mover 'L' (x, y) = (x + 1, y)
+mover 'D' (x, y) = (x + 1, y)
+mover 'd' (x, y) = (x + 1, y)
 mover 'O' (x, y) = (x - 1, y)
+mover 'A' (x, y) = (x - 1, y)
+mover 'a' (x, y) = (x - 1, y)
 mover _   pos    = pos
 
 -- 2. Executa uma sequencia de comandos e devolve a posicao final.
@@ -59,28 +70,17 @@ executarSeguro (c : cs) pos = executarSeguro cs (moverSeguro c pos)
 
 -- ---------------------------------------------------------------
 -- Modo teclado: W A S D ou setas controlam o robo, como em um jogo.
--- Uma camada fina traduz TECLAS em COMANDOS e reaproveita moverSeguro.
+-- A tecla pressionada ja e o proprio comando do robo.
+-- (As letras N, S, L e O tambem funcionam aqui.)
 -- ---------------------------------------------------------------
 
--- Tecla -> comando do robo (pattern matching: literais e curinga).
-teclaParaComando :: Char -> Char
-teclaParaComando 'w' = 'N'
-teclaParaComando 'W' = 'N'
-teclaParaComando 's' = 'S'
-teclaParaComando 'S' = 'S'
-teclaParaComando 'd' = 'L'
-teclaParaComando 'D' = 'L'
-teclaParaComando 'a' = 'O'
-teclaParaComando 'A' = 'O'
-teclaParaComando _   = '?'
-
--- Ultimo caractere de uma seta (ESC [ A/B/C/D) -> tecla WASD equivalente.
-setaParaTecla :: Char -> Char
-setaParaTecla 'A' = 'w'
-setaParaTecla 'B' = 's'
-setaParaTecla 'C' = 'd'
-setaParaTecla 'D' = 'a'
-setaParaTecla _   = '?'
+-- Ultimo caractere de uma seta (ESC [ A/B/C/D) -> comando equivalente.
+setaParaComando :: Char -> Char
+setaParaComando 'A' = 'W'   -- seta para cima
+setaParaComando 'B' = 'S'   -- seta para baixo
+setaParaComando 'C' = 'D'   -- seta para a direita
+setaParaComando 'D' = 'A'   -- seta para a esquerda
+setaParaComando _   = '?'
 
 -- Le uma tecla; setas chegam como sequencia ESC [ X em terminais Linux/macOS.
 lerTecla :: IO Char
@@ -96,7 +96,7 @@ lerSeta = do
     else do
       _ <- getChar
       d <- getChar
-      return (setaParaTecla d)
+      return (setaParaComando d)
 
 -- Grade 10 x 10 com o robo (@). A linha y = 9 aparece no topo.
 desenhar :: (Int, Int) -> String
@@ -119,19 +119,22 @@ jogar pos = do
       tecla <- lerTecla
       if tecla == 'q' || tecla == 'Q'
         then putStrLn "Ate a proxima!"
-        else jogar (moverSeguro (teclaParaComando tecla) pos)
+        else jogar (moverSeguro tecla pos)
 
 -- Demonstracao das funcoes com entradas e saidas fixas.
 demonstracao :: IO ()
 demonstracao = do
   putStrLn "--- mover ---"
   print (mover 'N' (0, 0))
+  print (mover 'W' (0, 0))
   print (mover 'X' (2, 3))
   putStrLn "--- executar ---"
   print (executar "NNLLX" (0, 0))
+  print (executar "WWDDX" (0, 0))
   print (executar "" (5, 5))
   putStrLn "--- trajetoria ---"
   print (trajetoria "NL" (0, 0))
+  print (trajetoria "WD" (0, 0))
   print (trajetoria "" (1, 1))
   putStrLn "--- distanciaOrigem ---"
   print (distanciaOrigem (-3, 4))
