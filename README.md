@@ -10,23 +10,59 @@
 
 ---
 
-## 🎯 O projeto
+## 📖 Sobre o projeto
 
-Um robô vive em um plano cartesiano e recebe comandos como `"NNLLX"`: `N` (norte), `S` (sul), `L` (leste), `O` (oeste). Comandos desconhecidos não fazem nada. O projeto investiga **como o Haskell escolhe qual equação executar** e o que acontece quando nenhum padrão casa.
+Este repositório reúne o trabalho do Tema 05 do seminário de programação funcional com Haskell: **pattern matching nos comandos de um robô**.
 
-Cobre padrões literais, curinga `_`, tuplas `(x, y)`, listas `(c:cs)`, ordem das equações, avisos do `-Wall` e a comparação com o `switch` do C.
+Um robô se move em um plano cartesiano. Sua posição é uma tupla `(x, y)` e ele recebe uma sequência de comandos em formato de texto, como `"NNLLX"`:
 
-## 📁 Arquivos
+| Comando | Significado | Efeito |
+|:---:|:---:|:---:|
+| `N` | Norte | `y + 1` |
+| `S` | Sul | `y - 1` |
+| `L` | Leste | `x + 1` |
+| `O` | Oeste | `x - 1` |
+| outro | Desconhecido | nada acontece |
 
-| Arquivo | Conteúdo |
-|---|---|
-| `Exemplo1.hs` | Exemplo conceitual de pattern matching |
-| `Aplicacao.hs` | `mover`, `executar`, `trajetoria`, `distanciaOrigem`, `quadrante` e a extensão (grade 10 x 10) |
-| `Experimentos.hs` | Desafio investigativo: padrões incompletos e ordem das equações |
-| `comparacao_switch.c` | O mesmo robô em C, com o problema do `break` esquecido |
-| `SINTESE.md` | Descobertas e referências |
+O problema é simples de propósito: ele deixa em evidência o mecanismo que o Haskell usa para decidir **qual equação de uma função executar**, sem `if` e sem `switch`.
 
-## 🎬 Exemplo
+## 🎯 Objetivos
+
+- Entender como o Haskell seleciona a equação a ser usada: de cima para baixo, pela forma dos dados.
+- Usar padrões **literais**, **curinga** (`_`), em **tuplas** `(x, y)` e em **listas** `(c:cs)`.
+- Investigar o que acontece quando **nenhum padrão corresponde** à entrada e como o `-Wall` ajuda a perceber isso.
+- Comparar o pattern matching com o `switch` do C, incluindo o problema do `break` esquecido.
+- Explicar e demonstrar tudo isso ao vivo para a turma, com código escrito pela própria equipe.
+
+## 🧩 O que foi implementado
+
+| Função | Tipo | O que faz |
+|---|---|---|
+| `mover` | `Char -> (Int, Int) -> (Int, Int)` | Aplica um comando à posição |
+| `executar` | `String -> (Int, Int) -> (Int, Int)` | Executa uma sequência e devolve a posição final |
+| `trajetoria` | `String -> (Int, Int) -> [(Int, Int)]` | Lista todas as posições visitadas, incluindo a inicial |
+| `distanciaOrigem` | `(Int, Int) -> Int` | Distância de Manhattan até a origem |
+| `quadrante` | `(Int, Int) -> String` | Classifica a posição: origem, eixos ou `Q1` a `Q4` |
+| `executarSeguro` | `String -> (Int, Int) -> (Int, Int)` | **Extensão:** o robô não sai de uma grade 10 × 10 |
+
+O coração do projeto cabe em poucas linhas:
+
+```haskell
+mover :: Char -> (Int, Int) -> (Int, Int)
+mover 'N' (x, y) = (x, y + 1)
+mover 'S' (x, y) = (x, y - 1)
+mover 'L' (x, y) = (x + 1, y)
+mover 'O' (x, y) = (x - 1, y)
+mover _   pos    = pos          -- curinga: comando desconhecido não faz nada
+
+executar :: String -> (Int, Int) -> (Int, Int)
+executar []       pos = pos
+executar (c : cs) pos = executar cs (mover c pos)
+```
+
+Sem laço, sem `if` e sem variável mudando de valor: cada passo produz uma nova posição.
+
+## 🎬 Exemplo de uso
 
 ```text
 ghci> executar "NNLLX" (0,0)
@@ -35,13 +71,29 @@ ghci> executar "NNLLX" (0,0)
 ghci> trajetoria "NL" (0,0)
 [(0,0),(0,1),(1,1)]
 
+ghci> distanciaOrigem (-3,4)
+7
+
 ghci> quadrante (0,5)
 "eixo Y"
+
+ghci> executarSeguro "NNNNNNNNNNNN" (0,0)
+(0,9)
 ```
+
+## 📁 Estrutura
+
+| Arquivo | Conteúdo |
+|---|---|
+| `Exemplo1.hs` | Exemplo conceitual: o pattern matching isolado |
+| `Aplicacao.hs` | As cinco funções, a extensão e o `main` |
+| `Experimentos.hs` | Desafio investigativo: padrões incompletos e ordem das equações |
+| `comparacao_switch.c` | O mesmo robô em C, com `switch` |
+| `SINTESE.md` | Descobertas, evidências e referências |
 
 ## 🚀 Como executar
 
-Requer GHC ([GHCup](https://www.haskell.org/ghcup/)) e, para o arquivo em C, o `gcc`. Apenas o `Prelude` é usado.
+Requer o GHC ([GHCup](https://www.haskell.org/ghcup/)) e, para o arquivo em C, o `gcc`. Apenas o `Prelude` é usado, sem bibliotecas externas.
 
 ```bash
 ghc -Wall Exemplo1.hs -o exemplo1 && ./exemplo1
@@ -49,16 +101,32 @@ ghc -Wall Aplicacao.hs -o aplicacao && ./aplicacao
 gcc -Wall comparacao_switch.c -o comparacao && ./comparacao
 ```
 
-No Windows, use `-o aplicacao.exe` e execute com `.\aplicacao.exe`. Sem gerar executável: `runghc Aplicacao.hs`. Para o desafio, abra `ghci Experimentos.hs`.
+No Windows, use `-o aplicacao.exe` e execute com `.\aplicacao.exe`. Para rodar sem gerar executável: `runghc Aplicacao.hs`. Para o desafio investigativo, abra `ghci Experimentos.hs`.
 
 ## 🔬 Principais descobertas
 
-- **Sem o curinga**, o `-Wall` avisa `Pattern match(es) are non-exhaustive`, e `mover 'X' (0,0)` quebra só em tempo de execução.
-- **A ordem importa:** com o caso geral primeiro, `quadrante (0,5)` devolve `"Q4"` em vez de `"eixo Y"`.
-- **No C**, esquecer o `break` faz o `'N'` cair no `'S'` e o robô volta para `(0,0)`. No Haskell não existe *fall-through*.
+1. **Sem o curinga, o programa quebra em tempo de execução.** O `-Wall` avisa `Pattern match(es) are non-exhaustive`, mas `mover 'X' (0,0)` só falha quando é executado.
+2. **A ordem das equações importa.** Com o caso geral escrito primeiro, `quadrante (0,5)` devolve `"Q4"` em vez de `"eixo Y"`, e o compilador avisa que uma equação ficou inalcançável.
+3. **O `switch` do C tem uma armadilha que o Haskell não tem.** Esquecer o `break` faz o `'N'` cair no `'S'` e o robô volta para `(0,0)`. No Haskell cada equação é independente, não existe *fall-through*.
+
+| | Haskell | C |
+|---|---|---|
+| Escolha do caso | De cima para baixo, pela forma do dado | Pelo valor, com saltos entre casos |
+| Caso esquecido | Aviso do compilador com `-Wall` | Silencioso |
+| Estado | Cada passo gera um valor novo | Variável alterada no lugar |
+
+## 💡 Por que isso importa
+
+Pattern matching deixa o código mais **declarativo**: em vez de dizer como testar cada situação, descrevemos a forma dos dados e o resultado esperado. Isso reduz erros, facilita a leitura e permite que o compilador avise quando esquecemos um caso.
 
 ## 👥 Equipe
 
 **Rafael Gurgel · Lucas de Souza · Artur Holanda**
 
-CESAR School · 2026.2
+CESAR School · Programação Imperativa e Funcional · 2026.2
+
+## 📚 Referências
+
+- [Documentação oficial do Haskell](https://www.haskell.org/documentation/)
+- [Módulo Prelude](https://hackage.haskell.org/package/base/docs/Prelude.html)
+- LIPOVAČA, M. *Learn You a Haskell for Great Good!* No Starch Press, 2011.
