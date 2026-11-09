@@ -2,7 +2,7 @@
 
 # 🤖 Robô Funcional
 
-### Pattern matching em Haskell: um robô, quatro comandos e zero `if`
+### Pattern matching em Haskell: um robô, duas linguagens de comando e zero `if`
 
 **Seminário Técnico · Tema 05** · Programação Imperativa e Funcional · Prof. Roni Maciel
 
@@ -14,15 +14,17 @@
 
 Este repositório reúne o trabalho do Tema 05 do seminário de programação funcional com Haskell: **pattern matching nos comandos de um robô**.
 
-Um robô se move em um plano cartesiano. Sua posição é uma tupla `(x, y)` e ele recebe uma sequência de comandos em formato de texto, como `"NNLLX"`:
+Um robô se move em um plano cartesiano. Sua posição é uma tupla `(x, y)` e ele recebe uma sequência de comandos em formato de texto, como `"NNLLX"` ou `"WWDDX"`. O robô entende **dois jeitos de escrever os comandos**, e eles podem ser misturados:
 
-| Comando | Significado | Efeito |
-|:---:|:---:|:---:|
-| `N` | Norte | `y + 1` |
-| `S` | Sul | `y - 1` |
-| `L` | Leste | `x + 1` |
-| `O` | Oeste | `x - 1` |
-| outro | Desconhecido | nada acontece |
+| Movimento | Bússola | Teclas de jogo | Efeito |
+|:---:|:---:|:---:|:---:|
+| Cima | `N` (norte) | `W` | `y + 1` |
+| Baixo | `S` (sul) | `S` | `y - 1` |
+| Direita | `L` (leste) | `D` | `x + 1` |
+| Esquerda | `O` (oeste) | `A` | `x - 1` |
+| Outro caractere | | | nada acontece |
+
+As teclas de jogo funcionam em maiúscula e minúscula. No modo jogo, as **setas do teclado** também controlam o robô.
 
 O problema é simples de propósito: ele deixa em evidência o mecanismo que o Haskell usa para decidir **qual equação de uma função executar**, sem `if` e sem `switch`.
 
@@ -50,9 +52,12 @@ O coração do projeto cabe em poucas linhas:
 ```haskell
 mover :: Char -> (Int, Int) -> (Int, Int)
 mover 'N' (x, y) = (x, y + 1)
+mover 'W' (x, y) = (x, y + 1)
 mover 'S' (x, y) = (x, y - 1)
 mover 'L' (x, y) = (x + 1, y)
+mover 'D' (x, y) = (x + 1, y)
 mover 'O' (x, y) = (x - 1, y)
+mover 'A' (x, y) = (x - 1, y)
 mover _   pos    = pos          -- curinga: comando desconhecido não faz nada
 
 executar :: String -> (Int, Int) -> (Int, Int)
@@ -60,11 +65,13 @@ executar []       pos = pos
 executar (c : cs) pos = executar cs (mover c pos)
 ```
 
+(No código do repositório, `mover` também tem as equações para as teclas `w`, `s`, `d` e `a` em minúscula.)
+
 Sem laço, sem `if` e sem variável mudando de valor: cada passo produz uma nova posição.
 
 ## 🎮 Modo teclado
 
-Ao executar o `Aplicacao.hs`, um menu permite **jogar com o robô como em um jogo**: `W A S D` ou as setas movem o robô em uma grade 10 × 10, sem apertar Enter, e `Q` sai.
+Ao executar o `Aplicacao.hs`, um menu permite **jogar com o robô como em um jogo**: `W A S D` ou as **setas** movem o robô em uma grade 10 × 10, sem apertar Enter, e `Q` sai.
 
 ```text
 . . . . . . . . . .
@@ -74,12 +81,15 @@ Ao executar o `Aplicacao.hs`, um menu permite **jogar com o robô como em um jog
 Posicao: (3,7)  |  Q1
 ```
 
-O jogo não muda o núcleo: uma pequena função traduz a tecla em comando (`'w'` vira `'N'`, `'d'` vira `'L'`...) usando o próprio pattern matching, e reaproveita `moverSeguro`.
+A tecla pressionada já é o comando do robô, e o jogo reaproveita `moverSeguro`, então o robô para na borda da grade.
 
 ## 🎬 Exemplo de uso
 
 ```text
 ghci> executar "NNLLX" (0,0)
+(2,2)
+
+ghci> executar "WWDDX" (0,0)
 (2,2)
 
 ghci> trajetoria "NL" (0,0)
@@ -121,7 +131,7 @@ No `aplicacao`, escolha **1** para a demonstração das funções ou **2** para 
 
 ## 🔬 Principais descobertas
 
-1. **Sem o curinga, o programa quebra em tempo de execução.** O `-Wall` avisa `Pattern match(es) are non-exhaustive`, mas `mover 'X' (0,0)` só falha quando é executado.
+1. **Sem o curinga, o programa quebra em tempo de execução.** O `-Wall` avisa `Pattern match(es) are non-exhaustive`, mas `moverSemCuringa 'X' (0,0)` só falha quando é executado.
 2. **A ordem das equações importa.** Com o caso geral escrito primeiro, `quadrante (0,5)` devolve `"Q4"` em vez de `"eixo Y"`, e o compilador avisa que uma equação ficou inalcançável.
 3. **O `switch` do C tem uma armadilha que o Haskell não tem.** Esquecer o `break` faz o `'N'` cair no `'S'` e o robô volta para `(0,0)`. No Haskell cada equação é independente, não existe *fall-through*.
 
