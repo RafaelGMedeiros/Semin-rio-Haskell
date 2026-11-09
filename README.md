@@ -62,6 +62,20 @@ executar (c : cs) pos = executar cs (mover c pos)
 
 Sem laço, sem `if` e sem variável mudando de valor: cada passo produz uma nova posição.
 
+## 🎮 Modo teclado
+
+Ao executar o `Aplicacao.hs`, um menu permite **jogar com o robô como em um jogo**: `W A S D` ou as setas movem o robô em uma grade 10 × 10, sem apertar Enter, e `Q` sai.
+
+```text
+. . . . . . . . . .
+. . . . . . . . . .
+. . . @ . . . . . .
+. . . . . . . . . .
+Posicao: (3,7)  |  Q1
+```
+
+O jogo não muda o núcleo: uma pequena função traduz a tecla em comando (`'w'` vira `'N'`, `'d'` vira `'L'`...) usando o próprio pattern matching, e reaproveita `moverSeguro`.
+
 ## 🎬 Exemplo de uso
 
 ```text
@@ -86,14 +100,14 @@ ghci> executarSeguro "NNNNNNNNNNNN" (0,0)
 | Arquivo | Conteúdo |
 |---|---|
 | `Exemplo1.hs` | Exemplo conceitual: o pattern matching isolado |
-| `Aplicacao.hs` | As cinco funções, a extensão e o `main` |
+| `Aplicacao.hs` | As cinco funções, a extensão, a demonstração e o modo teclado |
 | `Experimentos.hs` | Desafio investigativo: padrões incompletos e ordem das equações |
 | `comparacao_switch.c` | O mesmo robô em C, com `switch` |
 | `SINTESE.md` | Descobertas, evidências e referências |
 
 ## 🚀 Como executar
 
-Requer o GHC ([GHCup](https://www.haskell.org/ghcup/)) e, para o arquivo em C, o `gcc`. Apenas o `Prelude` é usado, sem bibliotecas externas.
+Requer o GHC ([GHCup](https://www.haskell.org/ghcup/)) e, para o arquivo em C, o `gcc`.
 
 ```bash
 ghc -Wall Exemplo1.hs -o exemplo1 && ./exemplo1
@@ -101,7 +115,9 @@ ghc -Wall Aplicacao.hs -o aplicacao && ./aplicacao
 gcc -Wall comparacao_switch.c -o comparacao && ./comparacao
 ```
 
-No Windows, use `-o aplicacao.exe` e execute com `.\aplicacao.exe`. Para rodar sem gerar executável: `runghc Aplicacao.hs`. Para o desafio investigativo, abra `ghci Experimentos.hs`.
+No `aplicacao`, escolha **1** para a demonstração das funções ou **2** para jogar. No Windows, use `-o aplicacao.exe` e execute com `.\aplicacao.exe`. Para rodar sem gerar executável: `runghc Aplicacao.hs`. Para o desafio investigativo, abra `ghci Experimentos.hs`.
+
+> As setas funcionam em terminais Linux e macOS. No Windows, prefira `W A S D`.
 
 ## 🔬 Principais descobertas
 
