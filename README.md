@@ -63,6 +63,6 @@ No Windows, use `-o aplicacao.exe` e execute com `.\aplicacao.exe`. Sem gerar ex
 
 ## 👥 Equipe
 
-**Rafael Gurgel · Lucas de Souza · Artur Holanda · Pedro Peixoto**
+**Rafael Gurgel · Lucas de Souza · Artur Holanda**
 
 CESAR School · 2026.2
