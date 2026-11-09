@@ -1,5 +1,10 @@
 -- Aplicacao.hs: controle de um robo em um plano cartesiano
 -- Posicao: tupla (x, y). Comandos: 'N' (norte), 'S' (sul), 'L' (leste), 'O' (oeste).
+--
+-- As funcoes obrigatorias e a extensao sao puras (sem IO).
+-- Somente a parte final (demonstracao e modo teclado) usa entrada e saida.
+
+import System.IO
 
 -- 1. Aplica um comando a posicao; comandos desconhecidos mantem a posicao.
 mover :: Char -> (Int, Int) -> (Int, Int)
@@ -52,8 +57,73 @@ executarSeguro :: String -> (Int, Int) -> (Int, Int)
 executarSeguro []       pos = pos
 executarSeguro (c : cs) pos = executarSeguro cs (moverSeguro c pos)
 
-main :: IO ()
-main = do
+-- ---------------------------------------------------------------
+-- Modo teclado: W A S D ou setas controlam o robo, como em um jogo.
+-- Uma camada fina traduz TECLAS em COMANDOS e reaproveita moverSeguro.
+-- ---------------------------------------------------------------
+
+-- Tecla -> comando do robo (pattern matching: literais e curinga).
+teclaParaComando :: Char -> Char
+teclaParaComando 'w' = 'N'
+teclaParaComando 'W' = 'N'
+teclaParaComando 's' = 'S'
+teclaParaComando 'S' = 'S'
+teclaParaComando 'd' = 'L'
+teclaParaComando 'D' = 'L'
+teclaParaComando 'a' = 'O'
+teclaParaComando 'A' = 'O'
+teclaParaComando _   = '?'
+
+-- Ultimo caractere de uma seta (ESC [ A/B/C/D) -> tecla WASD equivalente.
+setaParaTecla :: Char -> Char
+setaParaTecla 'A' = 'w'
+setaParaTecla 'B' = 's'
+setaParaTecla 'C' = 'd'
+setaParaTecla 'D' = 'a'
+setaParaTecla _   = '?'
+
+-- Le uma tecla; setas chegam como sequencia ESC [ X em terminais Linux/macOS.
+lerTecla :: IO Char
+lerTecla = do
+  c <- getChar
+  if c == '\ESC' then lerSeta else return c
+
+lerSeta :: IO Char
+lerSeta = do
+  pronto <- hReady stdin
+  if not pronto
+    then return '\ESC'
+    else do
+      _ <- getChar
+      d <- getChar
+      return (setaParaTecla d)
+
+-- Grade 10 x 10 com o robo (@). A linha y = 9 aparece no topo.
+desenhar :: (Int, Int) -> String
+desenhar pos = unlines [linha y | y <- [9, 8 .. 0]]
+  where
+    linha y = unwords [[celula (x, y)] | x <- [0 .. 9]]
+    celula p
+      | p == pos  = '@'
+      | otherwise = '.'
+
+jogar :: (Int, Int) -> IO ()
+jogar pos = do
+  putStrLn ""
+  putStr (desenhar pos)
+  putStrLn ("Posicao: " ++ show pos ++ "  |  " ++ quadrante pos)
+  fim <- isEOF
+  if fim
+    then putStrLn "Fim da entrada."
+    else do
+      tecla <- lerTecla
+      if tecla == 'q' || tecla == 'Q'
+        then putStrLn "Ate a proxima!"
+        else jogar (moverSeguro (teclaParaComando tecla) pos)
+
+-- Demonstracao das funcoes com entradas e saidas fixas.
+demonstracao :: IO ()
+demonstracao = do
   putStrLn "--- mover ---"
   print (mover 'N' (0, 0))
   print (mover 'X' (2, 3))
@@ -77,3 +147,20 @@ main = do
   putStrLn "--- extensao: grade 10 x 10 ---"
   print (executarSeguro "SSSOOO" (1, 1))
   print (executarSeguro "NNNNNNNNNNNN" (0, 0))
+
+main :: IO ()
+main = do
+  hSetBuffering stdout NoBuffering
+  hSetBuffering stdin NoBuffering
+  hSetEcho stdin False
+  putStrLn "Robo funcional"
+  putStrLn "  1 - Demonstracao das funcoes"
+  putStrLn "  2 - Jogar (W A S D ou setas; Q sai)"
+  putStr "Escolha: "
+  opcao <- getChar
+  putStrLn [opcao]
+  case opcao of
+    '1' -> demonstracao
+    '2' -> jogar (0, 0)
+    _   -> putStrLn "Opcao invalida."
+  hSetEcho stdin True
