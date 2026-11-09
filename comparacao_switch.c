@@ -1,4 +1,5 @@
 /* comparacao_switch.c: o mesmo mover do robo em C, com switch.
+   (Apenas N S L O em maiuscula, para manter o exemplo curto.)
    Compilar: gcc -Wall comparacao_switch.c -o comparacao
    Executar: ./comparacao */
 #include <stdio.h>
