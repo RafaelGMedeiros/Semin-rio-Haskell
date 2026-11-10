@@ -4,6 +4,8 @@
 
 **Integrantes:** Rafael Gurgel de Amorim Medeiros, Artur Holanda Costa, Lucas de Souza
 
+---
+
 ## 1. O conceito em poucas palavras
 
 Pattern matching é definir uma função por casos, descrevendo a forma dos dados de entrada: um valor literal (`'N'`, `0`), uma tupla (`(x, y)`), uma lista vazia (`[]`) ou não vazia (`(c:cs)`). O Haskell testa as equações de cima para baixo e executa a primeira que casa. O curinga `_` casa com qualquer valor e funciona como o caso "caso contrário".
@@ -90,23 +92,13 @@ O robô anda para o norte e volta para o sul. Compilando com `gcc -Wall`, não h
 
 ## 5. Dificuldades e limitações
 
-[Ajustem com o que a equipe realmente viveu. Pontos técnicos que apareceram no projeto:]
-
 - Padrões não testam condições como `x > 0`, o que obrigou a combinar padrões e guardas em `quadrante`.
 - Um padrão incompleto não impede a compilação: o aviso só aparece com `-Wall`, e o erro vem em execução.
 - O modo jogo precisa ler teclas sem Enter e reconhecer setas, que chegam como a sequência `ESC [ X` em terminais Linux e macOS. No Windows isso pode não funcionar, e por isso `W A S D` é o caminho mais seguro.
 - O modo jogo usa `System.IO`, que não é o Prelude. [Registrar aqui a resposta do professor sobre o uso desse módulo.]
 - As teclas `W A S D` foram adicionadas além dos comandos `N S L O` do enunciado, e o `S` serve para os dois (sul e baixo).
 
-## 6. Quadro de contribuições
-
-| Integrante | Funções implementadas | Pesquisa | Parte da apresentação |
-|---|---|---|---|
-| Rafael Gurgel de Amorim Medeiros | [preencher] | [preencher] | [preencher] |
-| [nome completo] | [preencher] | [preencher] | [preencher] |
-| [nome completo] | [preencher] | [preencher] | [preencher] |
-
-## 7. Referências
+## 6. Referências
 
 - HASKELL.ORG. *Documentation*. Disponível em: https://www.haskell.org/documentation/.
 - HASKELL. *Documentação do módulo Prelude*. Disponível em: https://hackage.haskell.org/package/base/docs/Prelude.html.
