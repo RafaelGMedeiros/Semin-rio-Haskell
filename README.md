@@ -147,8 +147,6 @@ Pattern matching deixa o código mais **declarativo**: em vez de dizer como test
 
 ## 👥 Equipe
 
-**Equipe:** [nome da equipe]
-
 **Integrantes:** Rafael Gurgel de Amorim Medeiros · Artur Holanda Costa · Lucas de Souza
 
 CESAR School · Programação Imperativa e Funcional · 2026.2
