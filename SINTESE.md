@@ -14,7 +14,7 @@ No projeto, um robô se move em um plano cartesiano. A posição é uma tupla `(
 
 ## 2. Resposta ao desafio investigativo
 
-Ambiente: GHC [versão: rodar `ghc --version`]. Os experimentos estão em `Experimentos.hs`.
+Ambiente: GHC 9.4.7. Os experimentos estão em `Experimentos.hs`.
 
 **Pergunta 1: o que acontece ao remover a equação curinga de `mover` e executar `mover 'X' (0,0)`?**
 
@@ -95,7 +95,7 @@ O robô anda para o norte e volta para o sul. Compilando com `gcc -Wall`, não h
 - Padrões não testam condições como `x > 0`, o que obrigou a combinar padrões e guardas em `quadrante`.
 - Um padrão incompleto não impede a compilação: o aviso só aparece com `-Wall`, e o erro vem em execução.
 - O modo jogo precisa ler teclas sem Enter e reconhecer setas, que chegam como a sequência `ESC [ X` em terminais Linux e macOS. No Windows isso pode não funcionar, e por isso `W A S D` é o caminho mais seguro.
-- O modo jogo usa `System.IO`, que não é o Prelude. [Registrar aqui a resposta do professor sobre o uso desse módulo.]
+- O modo jogo usa `System.IO`, módulo da biblioteca padrão fora do Prelude, para ler as teclas. As cinco funções obrigatórias e a extensão não dependem dele.
 - As teclas `W A S D` foram adicionadas além dos comandos `N S L O` do enunciado, e o `S` serve para os dois (sul e baixo).
 
 ## 6. Referências
@@ -104,4 +104,4 @@ O robô anda para o norte e volta para o sul. Compilando com `gcc -Wall`, não h
 - HASKELL. *Documentação do módulo Prelude*. Disponível em: https://hackage.haskell.org/package/base/docs/Prelude.html.
 - GHC. *GHC User's Guide* (avisos `-Wincomplete-patterns` e `-Woverlapping-patterns`). Disponível em: https://downloads.haskell.org/ghc/latest/docs/users_guide/.
 - LIPOVAČA, M. *Learn You a Haskell for Great Good!* San Francisco: No Starch Press, 2011.
-- Ferramentas de apoio: [citar, por exemplo, "Claude (Anthropic), usado para apoio na estrutura do código e da documentação; todos os integrantes revisaram e conseguem explicar e alterar o código"].
+- Ferramentas de apoio: Claude (Anthropic), usado como apoio na estrutura do código, do README e desta síntese.
