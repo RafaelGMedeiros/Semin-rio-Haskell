@@ -1,8 +1,7 @@
 # SÍNTESE DAS DESCOBERTAS
 
 **Tema:** 05 - Pattern matching nos comandos de um robô
-**Equipe:** [nome da equipe]
-**Integrantes:** Rafael Gurgel de Amorim Medeiros, [nome completo], [nome completo]
+**Integrantes:** Rafael Gurgel de Amorim Medeiros, Artur Holanda Costa, Lucas de Souza
 
 ## 1. O conceito em poucas palavras
 
